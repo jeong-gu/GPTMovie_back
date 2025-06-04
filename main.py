@@ -1,14 +1,15 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import openai
+from openai import OpenAI
 import os
 from fastapi.middleware.cors import CORSMiddleware
 
-openai.api_key = os.getenv("OPENAI_API_KEY")  # .env에 키 저장 권장
+# OpenAI 클라이언트 초기화
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # 또는 직접 문자열로 입력 가능
 
 app = FastAPI()
 
-# CORS 허용 (앱에서 접근 가능하게)
+# CORS 허용
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,8 +22,11 @@ class GPTRequest(BaseModel):
 
 @app.post("/recommend")
 def recommend(req: GPTRequest):
-    response = openai.ChatCompletion.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": req.message}]
+    response = client.chat.completions.create(
+        model="gpt-4o",  # 또는 "gpt-3.5-turbo"
+        messages=[
+            {"role": "system", "content": "당신은 영화 추천을 도와주는 조력자입니다."},
+            {"role": "user", "content": req.message}
+        ]
     )
-    return {"reply": response.choices[0].message["content"]}
+    return {"reply": response.choices[0].message.content}
