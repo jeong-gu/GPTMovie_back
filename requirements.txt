@@ -2,3 +2,10 @@ fastapi
 uvicorn
 openai
 python-dotenv
+requests
+chromadb
+sentence-transformers
+python-dotenv
+langchain_community
+numpy
+sqlalchemy
